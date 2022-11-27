@@ -57,7 +57,7 @@ const useFirebase = () => {
   };
   const clientSaveToDatabase = (userData, navigate) => {
     axios
-      .post("http://localhost:5000/app/v1/users", userData)
+      .post("https://villa-shop-backend.vercel.app/app/v1/users", userData)
       .then((res) => {
         if (res.data?.status === "success") {
           toast.success("Successfully create a new account.");
@@ -94,7 +94,7 @@ const useFirebase = () => {
   };
   const handleJsonWebToken = (email, navigate, location) => {
     axios
-      .put(`http://localhost:5000/app/v1/users?email=${email}`)
+      .put(`https://villa-shop-backend.vercel.app/app/v1/users?email=${email}`)
       .then((res) => {
         if (res.data?.status === "success") {
           const destination = location.state?.from || "/";

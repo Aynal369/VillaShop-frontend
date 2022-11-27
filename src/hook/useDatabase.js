@@ -14,7 +14,9 @@ const useDatabase = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://localhost:5000/app/v1/users?email=${users?.email}`)
+      .get(
+        `https://villa-shop-backend.vercel.app/app/v1/users?email=${users?.email}`
+      )
       .then((response) => {
         setClient(response.data.data);
       })

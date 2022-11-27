@@ -21,7 +21,7 @@ const useFirebase = () => {
   const auth = getAuth();
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (user) => {
-      if (isLoggedIn) {
+      if (user) {
         setIsLoggedIn(true);
         setUsers(user);
       } else {
@@ -43,27 +43,31 @@ const useFirebase = () => {
             fullName,
             email,
           };
-          clientSaveToDatabase(userData);
-          toast.success("Successfully create a new account.");
-          navigate("/login");
+          clientSaveToDatabase(userData, navigate);
         }
       })
       .catch((error) => {
         const errorCode = error.code;
         if (errorCode) {
           toast.error("Sorry! This email address is already in use.");
+          navigate("/login");
         }
       })
       .finally(() => setIsLoading(false));
   };
-  const clientSaveToDatabase = (userData) => {
+  const clientSaveToDatabase = (userData, navigate) => {
     axios
-      .post("https://villa-shop-backend.vercel.app/app/v1/users", userData)
+      .post("http://localhost:5000/app/v1/users", userData)
       .then((res) => {
-        console.log(res.data?.data);
+        if (res.data?.status === "success") {
+          toast.success("Successfully create a new account.");
+          navigate("/login");
+        }
       })
       .catch((err) => {
-        console.log(err.response.data);
+        if (err) {
+          toast.warn("Sorry something went wrong. please try again later");
+        }
       });
   };
   const userLogin = (email, password, navigate, location) => {
@@ -74,9 +78,7 @@ const useFirebase = () => {
         if (user) {
           setUsers(user);
           setIsLoggedIn(true);
-          //  handleJsonWebToken(user.email);
-          const destination = location.state?.from || "/";
-          navigate(destination);
+          handleJsonWebToken(user.email, navigate, location);
         }
       })
       .catch((error) => {
@@ -90,12 +92,21 @@ const useFirebase = () => {
       })
       .finally(() => setIsLoading(false));
   };
-  /*  const handleJsonWebToken = (email) => {
+  const handleJsonWebToken = (email, navigate, location) => {
     axios
-      .put(`https://villa-shop-backend.vercel.app/app/v1/users?email=${email}`)
-      .then((res) => {})
-      .catch((err) => {});
-  }; */
+      .put(`http://localhost:5000/app/v1/users?email=${email}`)
+      .then((res) => {
+        if (res.data?.status === "success") {
+          const destination = location.state?.from || "/";
+          navigate(destination);
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          toast.warn("Sorry something went wrong. please try again later");
+        }
+      });
+  };
   const handlePasswordResetEmail = (email, navigate, location) => {
     const auth = getAuth();
     sendPasswordResetEmail(auth, email)

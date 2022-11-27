@@ -4,24 +4,36 @@ import useAuth from "./useAuth";
 
 const useDatabase = () => {
   const [isClick, setIsClick] = useState(false);
-  const [user, setUser] = useState({});
+  const [client, setClient] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { users } = useAuth();
 
-  /*  useEffect(() => {
-    let subscribed = true;
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    setLoading(true);
     axios
-      .get(`https://villa-shop-backend.vercel.app/app/v1/users?email=${users.email}`)
-      .then((res) => {
-        if (subscribed) {
-          // console.log(res.data?.data);
-          setUser(res.data?.data);
-        }
+      .get(`http://localhost:5000/app/v1/users?email=${users?.email}`)
+      .then((response) => {
+        setClient(response.data.data);
       })
       .catch((err) => {
-        console.log(err.response?.data);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    return () => (subscribed = false);
-  }, [users.email]); */
+  }, [users?.email]);
+
+  useEffect(() => {
+    handleGetProducts();
+  }, []);
+
+  const handleGetProducts = () => {
+    const url = "https://dummyjson.com/products";
+    axios.get(url).then((res) => setProducts(res.data.products));
+  };
 
   const buttonRefresh = () => {
     setIsClick(true);
@@ -30,7 +42,15 @@ const useDatabase = () => {
     }, 6000);
   };
 
-  return { isClick, setIsClick, buttonRefresh, user };
+  return {
+    isClick,
+    setIsClick,
+    buttonRefresh,
+    client,
+    loading,
+    error,
+    products,
+  };
 };
 
 export default useDatabase;
